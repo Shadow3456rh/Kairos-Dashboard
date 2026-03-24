@@ -45,52 +45,52 @@ export default function AddDashboardModal({ onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
         className="absolute inset-0 bg-[#2D1F0E]/40 backdrop-blur-sm"
       />
-      
+
       {/* Modal */}
       <motion.div
         initial={{ scale: 0.85, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.85, opacity: 0 }}
-        className="relative bg-warm-white dark:bg-dark-surface w-full max-w-[480px] rounded-[24px] p-8 shadow-warmHover dark:shadow-darkHover border border-warm-beige dark:border-dark-border"
+        className="relative bg-[var(--bg-primary)] w-full max-w-[480px] rounded-[24px] p-8 shadow-[var(--shadow-lg)] border border-[var(--border-default)]"
       >
-        <button 
+        <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 text-warm-muted hover:text-warm-red transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/10"
+          className="absolute top-6 right-6 p-2 text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors rounded-full hover:bg-[var(--danger)]/10"
         >
           <X size={20} />
         </button>
 
-        <h2 className="font-display text-2xl font-bold mb-6 text-warm-brown dark:text-dark-text">New Dashboard</h2>
+        <h2 className="font-display text-2xl font-bold mb-6 text-[var(--text-primary)]">New Dashboard</h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium mb-2 text-warm-brown dark:text-dark-muted">Dashboard Name</label>
+            <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Dashboard Name</label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Office Setup"
-              className="w-full px-4 py-3 rounded-2xl bg-warm-cream dark:bg-dark-bg border border-warm-beige dark:border-dark-border focus:outline-none focus:border-warm-terracotta transition-colors text-warm-brown dark:text-dark-text"
+              className="w-full px-4 py-3 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-default)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors text-[var(--text-primary)]"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 text-warm-brown dark:text-dark-muted">Color Theme</label>
+            <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Color Theme</label>
             <div className="flex gap-3">
               {COLORS.map(c => (
                 <button
                   key={c.name}
                   type="button"
                   onClick={() => setColorTag(c.name)}
-                  className={`w-10 h-10 rounded-full border-2 transition-transform ${colorTag === c.name ? 'scale-110 border-warm-brown dark:border-white' : 'border-transparent'}`}
+                  className={`w-10 h-10 rounded-full border-2 transition-transform ${colorTag === c.name ? 'scale-110 border-[var(--text-primary)]' : 'border-transparent'}`}
                   style={{ backgroundColor: c.hex }}
                 />
               ))}
@@ -98,14 +98,14 @@ export default function AddDashboardModal({ onClose }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 text-warm-brown dark:text-dark-muted">Choose Icon</label>
-            <div className="grid grid-cols-6 gap-2 bg-warm-cream dark:bg-dark-bg p-3 rounded-2xl border border-warm-beige dark:border-dark-border">
+            <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Choose Icon</label>
+            <div className="grid grid-cols-6 gap-2 bg-[var(--bg-secondary)] p-3 rounded-2xl border border-[var(--border-default)]">
               {EMOJIS.map(e => (
                 <button
                   key={e}
                   type="button"
                   onClick={() => setIcon(e)}
-                  className={`text-2xl p-2 rounded-xl transition-all ${icon === e ? 'bg-warm-terracotta/20 scale-110' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
+                  className={`text-2xl p-2 rounded-xl transition-all ${icon === e ? 'bg-[var(--accent-glow)] scale-110' : 'hover:bg-black/5'}`}
                 >
                   {e}
                 </button>
@@ -116,7 +116,7 @@ export default function AddDashboardModal({ onClose }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 mt-2 bg-warm-terracotta hover:bg-warm-terracottaHover text-white rounded-2xl font-body font-medium transition-all hover:shadow-warmHover disabled:opacity-70"
+            className="w-full py-4 mt-2 bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-white rounded-2xl font-body font-medium transition-all hover:shadow-[var(--shadow-accent)] disabled:opacity-70"
           >
             {loading ? 'Creating...' : 'Create Dashboard'}
           </button>

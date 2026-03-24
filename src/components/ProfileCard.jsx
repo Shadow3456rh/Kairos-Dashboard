@@ -38,11 +38,11 @@ export default function ProfileCard({ dashboard, onDelete, onAddTask }) {
 
   const handleLaunch = async () => {
     setLaunchStatus('pending');
-    
+
     try {
       // Optional backend fetch stub
       await fetch(`http://localhost:5000/api/launch/${dashboard.id}`, { method: 'POST' });
-    } catch(err) {
+    } catch (err) {
       console.warn("Backend not running, but logging fake interaction");
     }
 
@@ -68,7 +68,7 @@ export default function ProfileCard({ dashboard, onDelete, onAddTask }) {
           <span className="text-xl">{dashboard.icon}</span>
           <h3 className="font-display font-bold text-lg">{dashboard.name}</h3>
         </div>
-        <button 
+        <button
           onClick={onDelete}
           className="p-2 text-warm-muted hover:text-warm-red dark:text-dark-muted dark:hover:text-warm-red transition-colors rounded-full hover:bg-warm-red/10"
           title="Delete Profile"
@@ -100,10 +100,10 @@ export default function ProfileCard({ dashboard, onDelete, onAddTask }) {
         onClick={handleLaunch}
         disabled={launchStatus === 'pending'}
         className={`w-full py-4 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 relative overflow-hidden
-          ${launchStatus === 'pending' ? 'bg-warm-beige text-warm-brown cursor-not-allowed dark:bg-dark-border dark:text-dark-muted' : 
-            launchStatus === 'success' ? 'bg-warm-green text-white' : 
-            launchStatus === 'error' ? 'bg-warm-red text-white' : 
-            'bg-warm-brown text-warm-cream hover:bg-black dark:bg-warm-cream dark:text-dark-bg hover:dark:bg-white shadow-sm'}`}
+          ${launchStatus === 'pending' ? 'bg-warm-beige text-warm-brown cursor-not-allowed dark:bg-dark-border dark:text-dark-muted' :
+            launchStatus === 'success' ? 'bg-warm-green text-white' :
+              launchStatus === 'error' ? 'bg-warm-red text-white' :
+                'bg-warm-brown text-warm-cream hover:bg-black dark:bg-warm-cream dark:text-dark-bg hover:dark:bg-white shadow-sm'}`}
       >
         {launchStatus === 'pending' && <span className="w-5 h-5 border-2 border-warm-brown/30 border-t-warm-brown rounded-full animate-spin"></span>}
         {launchStatus === 'success' && <span>Device Connected ✓</span>}

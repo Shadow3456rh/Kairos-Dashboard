@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword 
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
 } from 'firebase/auth';
 import { collection, doc, setDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
@@ -48,7 +48,7 @@ export default function AuthPage() {
   const handleAuth = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     if (!isLogin && password !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -62,7 +62,7 @@ export default function AuthPage() {
       } else {
         const userCred = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCred.user;
-        
+
         // Create user doc
         await setDoc(doc(db, "users", user.uid), {
           name: fullName || email.split('@')[0],
@@ -83,24 +83,32 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden p-4">
-      {/* Background Animated Blobs */}
-      <div className="absolute top-[10%] left-[20%] w-96 h-96 bg-warm-sand/20 dark:bg-dark-surface rounded-full blur-3xl blob1" />
-      <div className="absolute bottom-[10%] right-[20%] w-80 h-80 bg-warm-terracotta/20 dark:bg-warm-terracotta/10 rounded-full blur-3xl blob2" />
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--bg-page)' }}>
+      {/* Subtle accent blobs */}
+      <div className="absolute top-[10%] left-[20%] w-96 h-96 rounded-full blur-3xl pointer-events-none" style={{ background: 'var(--accent-soft)' }} />
+      <div className="absolute bottom-[10%] right-[20%] w-80 h-80 rounded-full blur-3xl opacity-50 pointer-events-none" style={{ background: 'var(--accent-soft)' }} />
 
-      <motion.div 
+      <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-[420px] bg-warm-white dark:bg-dark-surface p-8 rounded-3xl shadow-warm dark:shadow-dark border border-warm-beige dark:border-dark-border"
+        className="relative z-10 w-full max-w-[420px] p-10 rounded-[20px]"
+        style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border)',
+          boxShadow: 'var(--shadow-lg)',
+        }}
       >
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 bg-warm-cream dark:bg-dark-bg rounded-2xl flex items-center justify-center mb-4 shadow-sm">
-            <Hand size={32} className="text-warm-terracotta" />
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+            style={{ background: 'var(--accent-soft)', border: '1px solid var(--border-accent)' }}
+          >
+            <Hand size={32} style={{ color: 'var(--accent)' }} />
           </div>
-          <h1 className="font-display text-4xl text-warm-brown dark:text-dark-text mb-2">GestureHub</h1>
-          <p className="text-warm-muted dark:text-dark-muted font-body text-center text-sm">
-            Your cozy space for gesture-controlled hardware profiles.
+          <h1 className="font-display font-bold text-4xl mb-2" style={{ color: 'var(--text-primary)' }}>GestureHub</h1>
+          <p className="font-body text-center text-sm" style={{ color: 'var(--text-secondary)' }}>
+            Your space for gesture-controlled hardware profiles.
           </p>
         </div>
 
@@ -118,7 +126,8 @@ export default function AuthPage() {
                   placeholder="Full Name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl bg-warm-cream dark:bg-dark-bg border border-warm-beige dark:border-dark-border focus:outline-none focus:border-warm-terracotta transition-colors text-warm-brown dark:text-dark-text placeholder-warm-muted dark:placeholder-dark-muted"
+                  className="w-full px-4 py-3 rounded-xl font-body transition-all"
+                  style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
                 />
               </motion.div>
             )}
@@ -130,16 +139,18 @@ export default function AuthPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 rounded-2xl bg-warm-cream dark:bg-dark-bg border border-warm-beige dark:border-dark-border focus:outline-none focus:border-warm-terracotta transition-colors text-warm-brown dark:text-dark-text placeholder-warm-muted dark:placeholder-dark-muted"
+            className="w-full px-4 py-3 rounded-xl font-body transition-all"
+            style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
           />
-          
+
           <input
             type="password"
             placeholder="Password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 rounded-2xl bg-warm-cream dark:bg-dark-bg border border-warm-beige dark:border-dark-border focus:outline-none focus:border-warm-terracotta transition-colors text-warm-brown dark:text-dark-text placeholder-warm-muted dark:placeholder-dark-muted"
+            className="w-full px-4 py-3 rounded-xl font-body transition-all"
+            style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
           />
 
           <AnimatePresence mode="wait">
@@ -156,16 +167,18 @@ export default function AuthPage() {
                   required={!isLogin}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl bg-warm-cream dark:bg-dark-bg border border-warm-beige dark:border-dark-border focus:outline-none focus:border-warm-terracotta transition-colors text-warm-brown dark:text-dark-text placeholder-warm-muted dark:placeholder-dark-muted mt-4"
+                  className="w-full px-4 py-3 rounded-xl font-body transition-all mt-4"
+                  style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
                 />
               </motion.div>
             )}
           </AnimatePresence>
 
           {error && (
-            <motion.p 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} 
-              className="text-warm-red text-sm text-center animate-snake"
+            <motion.p
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="text-sm text-center"
+              style={{ color: 'var(--danger)' }}
             >
               {error}
             </motion.p>
@@ -174,20 +187,23 @@ export default function AuthPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 mt-2 bg-warm-terracotta hover:bg-warm-terracottaHover text-white rounded-2xl font-body font-medium transition-all hover:shadow-warmHover disabled:opacity-70 flex justify-center items-center"
+            className="w-full py-3 mt-2 text-white rounded-xl font-body font-semibold transition-all flex justify-center items-center disabled:opacity-70"
+            style={{ background: 'var(--accent)' }}
+            onMouseEnter={e => !loading && (e.currentTarget.style.background = 'var(--accent-hover)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'var(--accent)')}
           >
-            {loading ? <Loader2 className="animate-spin text-white" size={20} /> : (isLogin ? 'Sign In' : 'Create Account')}
+            {loading ? <Loader2 className="animate-spin" size={20} /> : (isLogin ? 'Sign In' : 'Create Account')}
           </button>
         </form>
 
         <div className="mt-6 text-center">
           <button
             type="button"
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setError('');
-            }}
-            className="text-warm-muted dark:text-dark-text hover:text-warm-terracotta transition-colors text-sm font-medium"
+            onClick={() => { setIsLogin(!isLogin); setError(''); }}
+            className="text-sm font-medium transition-colors"
+            style={{ color: 'var(--text-secondary)' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
           >
             {isLogin ? "Don't have an account? Register" : 'Already have an account? Sign In'}
           </button>

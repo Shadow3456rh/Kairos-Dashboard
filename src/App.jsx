@@ -14,24 +14,24 @@ const PrivateRoute = ({ children }) => {
 
 // Toggle & Contact Us Buttons Helper
 const FloatingControls = () => {
-  const { isDarkMode, toggleDarkMode } = useTheme();
+  const { isDark, toggle } = useTheme();
 
   return (
     <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
       <button
-        onClick={toggleDarkMode}
-        className="p-3 rounded-full bg-warm-white dark:bg-dark-surface shadow-warm dark:shadow-dark hover:shadow-warmHover dark:hover:shadow-darkHover transition-all text-warm-brown dark:text-dark-text group"
+        onClick={toggle}
+        className="theme-toggle-btn"
         title="Toggle Dark Mode"
       >
-        {isDarkMode ? <Sun size={24} className="group-hover:text-warm-terracotta transition-colors" /> : <Moon size={24} className="group-hover:text-warm-terracotta transition-colors" />}
+        {isDark ? "☀️" : "🌙"}
       </button>
 
       <button
         onClick={() => alert("Contact Us clicked!")}
-        className="p-3 rounded-full bg-warm-white dark:bg-dark-surface shadow-warm dark:shadow-dark hover:shadow-warmHover dark:hover:shadow-darkHover transition-all text-warm-brown dark:text-dark-text group"
+        className="theme-toggle-btn"
         title="Contact Us"
       >
-        <MessageCircle size={24} className="group-hover:text-warm-terracotta transition-colors" />
+        <MessageCircle size={20} />
       </button>
     </div>
   );
@@ -40,7 +40,7 @@ const FloatingControls = () => {
 function AppContent() {
   return (
     <Router>
-      <div className="min-h-screen bg-noise">
+      <div className="min-h-screen">
         <Routes>
           <Route path="/login" element={<AuthPage />} />
           <Route

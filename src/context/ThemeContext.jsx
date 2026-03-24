@@ -5,30 +5,31 @@ const ThemeContext = createContext();
 export const useTheme = () => useContext(ThemeContext);
 
 export const ThemeProvider = ({ children }) => {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Check local storage or system preference on load
+  const [isDark, setIsDark] = useState(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("gesturehub-theme");
-      if (saved) return saved === "true";
+      if (saved) return saved === "dark";
       return window.matchMedia("(prefers-color-scheme: dark)").matches;
     }
     return false;
   });
 
   useEffect(() => {
-    const root = window.document.documentElement;
-    if (isDarkMode) {
-      root.classList.add("dark");
+    const root = document.documentElement;
+    if (isDark) {
+      root.setAttribute("data-theme", "dark");
+      localStorage.setItem("gesturehub-theme", "dark");
     } else {
-      root.classList.remove("dark");
+      root.setAttribute("data-theme", "light");
+      localStorage.setItem("gesturehub-theme", "light");
     }
-    localStorage.setItem("gesturehub-theme", isDarkMode);
-  }, [isDarkMode]);
+  }, [isDark]);
 
-  const toggleDarkMode = () => setIsDarkMode(prev => !prev);
+  const toggle = () => setIsDark(prev => !prev);
 
+  // Also expose old names for backward compatibility with App.jsx FloatingControls
   return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
+    <ThemeContext.Provider value={{ isDark, toggle, isDarkMode: isDark, toggleDarkMode: toggle }}>
       {children}
     </ThemeContext.Provider>
   );

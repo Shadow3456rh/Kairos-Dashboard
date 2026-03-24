@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { collection, query, orderBy, onSnapshot, deleteDoc, doc, getDocs } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
-import { auth, db } from '../firebaseConfig';
+import { db } from '../firebaseConfig';
 import { useAuth } from '../context/AuthContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Plus } from 'lucide-react';
-import ProfileCard from '../components/ProfileCard';
-import AddDashboardModal from '../components/AddDashboardModal';
-import AddTaskModal from '../components/AddTaskModal';
+import { AnimatePresence } from 'framer-motion';
+import Navbar from '../components/Navbar';
+import DashboardOverview from './DashboardOverview';
+import DashboardDetail from './DashboardDetail';
 
 export default function Dashboard() {
   const { currentUser } = useAuth();
   const [dashboards, setDashboards] = useState([]);
-  const [isAddDashboardOpen, setIsAddDashboardOpen] = useState(false);
-  const [activeDashboardForTask, setActiveDashboardForTask] = useState(null);
+  const [selectedDashboard, setSelectedDashboard] = useState(null);
 
   useEffect(() => {
     if (!currentUser?.uid) return;
@@ -29,25 +26,29 @@ export default function Dashboard() {
         ...doc.data()
       }));
       setDashboards(data);
+      
+      // Update selectedDashboard reference if it changed
+      if (selectedDashboard) {
+        const updated = data.find(d => d.id === selectedDashboard.id);
+        if (updated) {
+          setSelectedDashboard(updated);
+        } else {
+          setSelectedDashboard(null); // It was deleted
+        }
+      }
     });
 
     return () => unsubscribe();
-  }, [currentUser]);
-
-  const handleLogout = async () => {
-    await signOut(auth);
-  };
+  }, [currentUser, selectedDashboard]);
 
   const deleteDashboard = async (dashboardId) => {
-    if(!currentUser) return;
+    if (!currentUser) return;
     try {
-      // Delete tasks subcollection first
       const tasksRef = collection(db, "users", currentUser.uid, "dashboards", dashboardId, "tasks");
       const snapshot = await getDocs(tasksRef);
       const deletePromises = snapshot.docs.map(taskDoc => deleteDoc(taskDoc.ref));
       await Promise.all(deletePromises);
-      
-      // Delete dashboard document
+
       await deleteDoc(doc(db, "users", currentUser.uid, "dashboards", dashboardId));
     } catch (err) {
       console.error("Error deleting dashboard: ", err);
@@ -55,79 +56,27 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen px-6 py-8 max-w-7xl mx-auto">
-      {/* Top Navbar */}
-      <nav className="flex items-center justify-between mb-12">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-warm-white dark:bg-dark-surface rounded-xl shadow-sm flex items-center justify-center border border-warm-beige dark:border-dark-border">
-            <span className="text-xl">🖐</span>
-          </div>
-          <h1 className="font-display text-2xl text-warm-brown dark:text-dark-text">GestureHub</h1>
-        </div>
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] relative overflow-hidden flex flex-col">
+      <Navbar />
 
-        <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-3 px-4 py-2 bg-warm-white dark:bg-dark-surface rounded-2xl shadow-sm border border-warm-beige dark:border-dark-border">
-            <div className="w-8 h-8 rounded-full bg-warm-terracotta/20 flex items-center justify-center text-warm-terracotta font-medium">
-              {currentUser?.displayName?.[0] || currentUser?.email?.[0]?.toUpperCase()}
-            </div>
-            <span className="text-sm font-medium text-warm-brown dark:text-dark-text">
-              {currentUser?.displayName || currentUser?.email?.split('@')[0]}
-            </span>
-          </div>
-          
-          <button 
-            onClick={handleLogout}
-            className="p-3 text-warm-muted hover:text-warm-red dark:text-dark-muted dark:hover:text-warm-red transition-colors bg-warm-white dark:bg-dark-surface rounded-xl shadow-sm border border-warm-beige dark:border-dark-border"
-            title="Logout"
-          >
-            <LogOut size={20} />
-          </button>
-        </div>
-      </nav>
-
-      {/* Dashboard Grid */}
-      <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          visible: { transition: { staggerChildren: 0.1 } }
-        }}
-      >
-        <AnimatePresence>
-          {dashboards.map((dashboard) => (
-            <ProfileCard 
-              key={dashboard.id} 
-              dashboard={dashboard} 
-              onDelete={() => deleteDashboard(dashboard.id)}
-              onAddTask={() => setActiveDashboardForTask(dashboard.id)}
+      <div className="flex-1 relative">
+        <AnimatePresence mode="wait">
+          {!selectedDashboard ? (
+            <DashboardOverview 
+              key="overview"
+              dashboards={dashboards} 
+              onSelectDashboard={setSelectedDashboard} 
+              onDeleteDashboard={deleteDashboard} 
             />
-          ))}
+          ) : (
+            <DashboardDetail 
+              key="detail"
+              dashboard={selectedDashboard} 
+              onBack={() => setSelectedDashboard(null)} 
+            />
+          )}
         </AnimatePresence>
-      </motion.div>
-
-      {/* Add Dashboard Button */}
-      <motion.button
-        whileHover={{ y: -2, scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={() => setIsAddDashboardOpen(true)}
-        className="w-full mt-8 py-6 rounded-3xl border-2 border-dashed border-warm-terracotta/40 dark:border-warm-terracotta/30 text-warm-terracotta dark:text-warm-terracotta hover:bg-warm-terracotta/5 dark:hover:bg-warm-terracotta/10 transition-colors flex items-center justify-center gap-3 font-medium text-lg"
-      >
-        <Plus size={24} /> Add New Dashboard
-      </motion.button>
-
-      {/* Modals */}
-      <AnimatePresence>
-        {isAddDashboardOpen && (
-          <AddDashboardModal onClose={() => setIsAddDashboardOpen(false)} />
-        )}
-        {activeDashboardForTask && (
-          <AddTaskModal 
-            dashboardId={activeDashboardForTask} 
-            onClose={() => setActiveDashboardForTask(null)} 
-          />
-        )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 }
