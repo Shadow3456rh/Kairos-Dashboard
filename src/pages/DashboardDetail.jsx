@@ -25,7 +25,9 @@ export default function DashboardDetail({ dashboard, onBack }) {
       setTasks(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
     });
     return () => unsubscribe();
-  }, [currentUser, dashboard]);
+  // Use dashboard.id (stable primitive) instead of the full object to avoid
+  // re-subscribing the listener on every parent re-render.
+  }, [currentUser, dashboard?.id]);
 
   const handleDeleteTask = async (taskId) => {
     if (!currentUser) return;

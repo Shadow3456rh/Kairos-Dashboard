@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [dashboards, setDashboards] = useState([]);
   const [selectedDashboard, setSelectedDashboard] = useState(null);
 
+  // Subscribe to dashboards — only re-runs on login/logout, NOT on view changes.
   useEffect(() => {
     if (!currentUser?.uid) return;
 
@@ -26,20 +27,22 @@ export default function Dashboard() {
         ...doc.data()
       }));
       setDashboards(data);
-      
-      // Update selectedDashboard reference if it changed
-      if (selectedDashboard) {
-        const updated = data.find(d => d.id === selectedDashboard.id);
-        if (updated) {
-          setSelectedDashboard(updated);
-        } else {
-          setSelectedDashboard(null); // It was deleted
-        }
-      }
     });
 
     return () => unsubscribe();
-  }, [currentUser, selectedDashboard]);
+  }, [currentUser]);
+
+  // Keep selectedDashboard in sync when the dashboards list updates (e.g. after a rename or delete).
+  // This is a cheap local operation — no Firestore fetch involved.
+  useEffect(() => {
+    if (!selectedDashboard) return;
+    const updated = dashboards.find(d => d.id === selectedDashboard.id);
+    if (updated) {
+      setSelectedDashboard(updated);
+    } else if (dashboards.length > 0) {
+      setSelectedDashboard(null); // Dashboard was deleted
+    }
+  }, [dashboards]);
 
   const deleteDashboard = async (dashboardId) => {
     if (!currentUser) return;
