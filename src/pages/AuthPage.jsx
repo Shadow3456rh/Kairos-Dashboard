@@ -7,7 +7,7 @@ import {
 import { collection, doc, setDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
 import { useNavigate } from 'react-router-dom';
-import { Hand, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { PREDEFINED_TASKS } from '../constants/predefinedTasks';
 
 export default function AuthPage() {
@@ -26,14 +26,11 @@ export default function AuthPage() {
       { name: "Home Theater", colorTag: "sand", icon: "🍿" },
       { name: "Presentation", colorTag: "sage", icon: "📊" }
     ];
-
     for (const dashboard of dashboards) {
       const dbRef = await addDoc(collection(db, "users", uid, "dashboards"), {
         ...dashboard,
         createdAt: serverTimestamp()
       });
-
-      // Seed 6 default tasks
       const defaultTasks = PREDEFINED_TASKS.slice(0, 6);
       for (const task of defaultTasks) {
         await addDoc(collection(db, "users", uid, "dashboards", dbRef.id, "tasks"), {
@@ -48,12 +45,10 @@ export default function AuthPage() {
   const handleAuth = async (e) => {
     e.preventDefault();
     setError('');
-
     if (!isLogin && password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
     setLoading(true);
     try {
       if (isLogin) {
@@ -62,15 +57,11 @@ export default function AuthPage() {
       } else {
         const userCred = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCred.user;
-
-        // Create user doc
         await setDoc(doc(db, "users", user.uid), {
           name: fullName || email.split('@')[0],
           email: user.email,
           createdAt: serverTimestamp()
         });
-
-        // Seed Dashboards
         await seedDashboards(user.uid);
         navigate('/');
       }
@@ -83,51 +74,36 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--bg-page)' }}>
-      {/* Subtle accent blobs */}
-      <div className="absolute top-[10%] left-[20%] w-96 h-96 rounded-full blur-3xl pointer-events-none" style={{ background: 'var(--accent-soft)' }} />
-      <div className="absolute bottom-[10%] right-[20%] w-80 h-80 rounded-full blur-3xl opacity-50 pointer-events-none" style={{ background: 'var(--accent-soft)' }} />
-
+    <div className="auth-page">
       <motion.div
-        initial={{ y: 20, opacity: 0 }}
+        initial={{ y: 24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-[420px] p-10 rounded-[20px]"
-        style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow-lg)',
-        }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="auth-card"
       >
-        <div className="flex flex-col items-center mb-8">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-            style={{ background: 'var(--accent-soft)', border: '1px solid var(--border-accent)' }}
-          >
-            <Hand size={32} style={{ color: 'var(--accent)' }} />
-          </div>
-          <h1 className="font-display font-bold text-4xl mb-2" style={{ color: 'var(--text-primary)' }}>GestureHub</h1>
-          <p className="font-body text-center text-sm" style={{ color: 'var(--text-secondary)' }}>
-            Your space for gesture-controlled hardware profiles.
-          </p>
-        </div>
+        {/* Logo */}
+        <div className="auth-logo-icon">🖐</div>
+        <h1 className="auth-title">GestureHub</h1>
+        <p className="auth-subtitle">
+          {isLogin ? 'Welcome back. Sign in to continue.' : 'Create your account to get started.'}
+        </p>
 
-        <form onSubmit={handleAuth} className="space-y-4">
+        <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <AnimatePresence mode="wait">
             {!isLogin && (
               <motion.div
+                key="fullname"
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="overflow-hidden"
+                style={{ overflow: 'hidden' }}
               >
                 <input
                   type="text"
                   placeholder="Full Name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl font-body transition-all"
-                  style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                  className="auth-input"
                 />
               </motion.div>
             )}
@@ -139,8 +115,7 @@ export default function AuthPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl font-body transition-all"
-            style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+            className="auth-input"
           />
 
           <input
@@ -149,26 +124,24 @@ export default function AuthPage() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl font-body transition-all"
-            style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+            className="auth-input"
           />
 
           <AnimatePresence mode="wait">
             {!isLogin && (
               <motion.div
+                key="confirm"
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="overflow-hidden"
+                style={{ overflow: 'hidden' }}
               >
                 <input
                   type="password"
                   placeholder="Confirm Password"
-                  required={!isLogin}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl font-body transition-all mt-4"
-                  style={{ background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                  className="auth-input"
                 />
               </motion.div>
             )}
@@ -177,35 +150,23 @@ export default function AuthPage() {
           {error && (
             <motion.p
               initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="text-sm text-center"
-              style={{ color: 'var(--danger)' }}
+              style={{ color: 'var(--danger)', fontSize: '13px', textAlign: 'center' }}
             >
               {error}
             </motion.p>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 mt-2 text-white rounded-xl font-body font-semibold transition-all flex justify-center items-center disabled:opacity-70"
-            style={{ background: 'var(--accent)' }}
-            onMouseEnter={e => !loading && (e.currentTarget.style.background = 'var(--accent-hover)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'var(--accent)')}
-          >
-            {loading ? <Loader2 className="animate-spin" size={20} /> : (isLogin ? 'Sign In' : 'Create Account')}
+          <button type="submit" disabled={loading} className="auth-btn">
+            {loading
+              ? <Loader2 size={18} className="animate-spin" />
+              : (isLogin ? 'Sign In' : 'Create Account')}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <button
-            type="button"
-            onClick={() => { setIsLogin(!isLogin); setError(''); }}
-            className="text-sm font-medium transition-colors"
-            style={{ color: 'var(--text-secondary)' }}
-            onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
-            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
-          >
-            {isLogin ? "Don't have an account? Register" : 'Already have an account? Sign In'}
+        <div className="auth-toggle">
+          {isLogin ? "Don't have an account? " : 'Already have an account? '}
+          <button type="button" onClick={() => { setIsLogin(!isLogin); setError(''); }}>
+            {isLogin ? 'Register' : 'Sign In'}
           </button>
         </div>
       </motion.div>

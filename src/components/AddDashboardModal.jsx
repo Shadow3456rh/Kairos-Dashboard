@@ -7,10 +7,10 @@ import { X } from 'lucide-react';
 
 const COLORS = [
   { name: 'terracotta', hex: '#E07B39' },
-  { name: 'sand', hex: '#C9A96E' },
-  { name: 'sage', hex: '#5D8A4E' },
-  { name: 'clay', hex: '#B05B3B' },
-  { name: 'rust', hex: '#9C4A28' }
+  { name: 'sand',       hex: '#C9A96E' },
+  { name: 'sage',       hex: '#5D8A4E' },
+  { name: 'clay',       hex: '#B05B3B' },
+  { name: 'rust',       hex: '#9C4A28' },
 ];
 
 const EMOJIS = ['🖐', '🍿', '📊', '💻', '🎮', '🎵', '🏠', '🚗', '📚', '🏃‍♂️', '☕', '💡'];
@@ -26,13 +26,9 @@ export default function AddDashboardModal({ onClose }) {
     e.preventDefault();
     if (!name.trim()) return;
     setLoading(true);
-
     try {
       await addDoc(collection(db, "users", currentUser.uid, "dashboards"), {
-        name,
-        colorTag,
-        icon,
-        createdAt: serverTimestamp()
+        name, colorTag, icon, createdAt: serverTimestamp()
       });
       onClose();
     } catch (err) {
@@ -43,69 +39,88 @@ export default function AddDashboardModal({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       {/* Backdrop */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-[#2D1F0E]/40 backdrop-blur-sm"
+        style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)' }}
       />
 
       {/* Modal */}
       <motion.div
-        initial={{ scale: 0.85, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.85, opacity: 0 }}
-        className="relative bg-[var(--bg-primary)] w-full max-w-[480px] rounded-[24px] p-8 shadow-[var(--shadow-lg)] border border-[var(--border-default)]"
+        initial={{ opacity: 0, scale: 0.94 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.94 }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
+        className="modal-card"
+        style={{ position: 'relative' }}
       >
-        <button
-          onClick={onClose}
-          className="absolute top-6 right-6 p-2 text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors rounded-full hover:bg-[var(--danger)]/10"
-        >
-          <X size={20} />
-        </button>
+        <button className="modal-close" onClick={onClose}><X size={18} /></button>
+        <h2 className="modal-title">New Dashboard</h2>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'var(--text-muted)', marginBottom: 22 }}>
+          Give your gesture profile a name and icon.
+        </p>
 
-        <h2 className="font-display text-2xl font-bold mb-6 text-[var(--text-primary)]">New Dashboard</h2>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Name */}
           <div>
-            <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Dashboard Name</label>
+            <label style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>
+              Dashboard Name
+            </label>
             <input
-              type="text"
-              required
+              type="text" required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Office Setup"
-              className="w-full px-4 py-3 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-default)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors text-[var(--text-primary)]"
+              className="modal-input"
             />
           </div>
 
+          {/* Color */}
           <div>
-            <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Color Theme</label>
-            <div className="flex gap-3">
+            <label style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>
+              Color Tag
+            </label>
+            <div style={{ display: 'flex', gap: 10 }}>
               {COLORS.map(c => (
                 <button
-                  key={c.name}
-                  type="button"
+                  key={c.name} type="button"
                   onClick={() => setColorTag(c.name)}
-                  className={`w-10 h-10 rounded-full border-2 transition-transform ${colorTag === c.name ? 'scale-110 border-[var(--text-primary)]' : 'border-transparent'}`}
-                  style={{ backgroundColor: c.hex }}
+                  style={{
+                    width: 34, height: 34, borderRadius: '50%',
+                    backgroundColor: c.hex, border: 'none', cursor: 'pointer',
+                    outline: colorTag === c.name ? `3px solid var(--amber)` : '3px solid transparent',
+                    outlineOffset: 2,
+                    transform: colorTag === c.name ? 'scale(1.15)' : 'scale(1)',
+                    transition: 'all 0.15s ease'
+                  }}
                 />
               ))}
             </div>
           </div>
 
+          {/* Icon */}
           <div>
-            <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Choose Icon</label>
-            <div className="grid grid-cols-6 gap-2 bg-[var(--bg-secondary)] p-3 rounded-2xl border border-[var(--border-default)]">
+            <label style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>
+              Icon
+            </label>
+            <div style={{
+              display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 6,
+              background: 'var(--bg-card)', padding: 10, borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--border)'
+            }}>
               {EMOJIS.map(e => (
                 <button
-                  key={e}
-                  type="button"
+                  key={e} type="button"
                   onClick={() => setIcon(e)}
-                  className={`text-2xl p-2 rounded-xl transition-all ${icon === e ? 'bg-[var(--accent-glow)] scale-110' : 'hover:bg-black/5'}`}
+                  style={{
+                    fontSize: 22, padding: 6, borderRadius: 8, border: 'none', cursor: 'pointer',
+                    background: icon === e ? 'var(--amber-soft)' : 'transparent',
+                    outline: icon === e ? '1px solid var(--amber-border)' : 'none',
+                    transform: icon === e ? 'scale(1.15)' : 'scale(1)',
+                    transition: 'all 0.15s ease'
+                  }}
                 >
                   {e}
                 </button>
@@ -113,12 +128,8 @@ export default function AddDashboardModal({ onClose }) {
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-4 mt-2 bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-white rounded-2xl font-body font-medium transition-all hover:shadow-[var(--shadow-accent)] disabled:opacity-70"
-          >
-            {loading ? 'Creating...' : 'Create Dashboard'}
+          <button type="submit" disabled={loading} className="modal-save-btn">
+            {loading ? 'Creating…' : 'Create Dashboard'}
           </button>
         </form>
       </motion.div>

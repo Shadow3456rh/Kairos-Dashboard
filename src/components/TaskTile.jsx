@@ -2,7 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { TASK_GESTURE_RULES } from '../constants/predefinedTasks';
 
-// Get a deterministic icon from task name or default to star
 const getTaskIcon = (name) => {
   if (name.includes('Media')) return '🎵';
   if (name.includes('Mouse')) return '🖱️';
@@ -25,19 +24,18 @@ export default function TaskTile({ task, onDelete }) {
       layout
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      exit={{ scale: 0.85, opacity: 0 }}
-      whileHover={{ scale: 1.02 }}
+      exit={{ opacity: 0, scale: 0.85, transition: { duration: 0.2 } }}
+      whileTap={{ scale: 0.98 }}
       className="task-tile"
     >
-      {/* Fixed header — never scrolls */}
+      {/* Fixed header */}
       <div className="task-tile-header">
         <div className="task-icon-pill">{icon}</div>
-        <span className="task-name truncate">{task.name}</span>
+        <span className="task-name" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {task.name}
+        </span>
         <button className="task-delete-btn" onClick={onDelete}>×</button>
       </div>
-
-      {/* Divider */}
-      <div className="task-divider" />
 
       {/* Scrollable bullet area */}
       <div className="task-rules-scroll">
@@ -49,22 +47,25 @@ export default function TaskTile({ task, onDelete }) {
             </div>
           ))
         ) : (
-          <div className="flex flex-col gap-2 pt-1 font-body text-[12.5px] text-[#5A5A72] leading-snug">
+          <div className="task-rule-item" style={{ flexDirection: 'column', gap: 6 }}>
             {task.appUrl ? (
               <>
-                <div className="flex items-start gap-2">
-                  <div className="bullet" />
-                  <span className="truncate" title={task.appUrl}>
-                    Opens: <span className="font-mono text-[11px] bg-[#F7F8FA] px-1 py-0.5 rounded border border-[#E8E8F0]">{task.appUrl}</span>
+                <div className="task-rule-item">
+                  <span className="bullet" />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    Opens: <span style={{ fontFamily: 'monospace', fontSize: 11, background: 'var(--bg-elevated)', padding: '1px 5px', borderRadius: 4, border: '1px solid var(--border)' }}>{task.appUrl}</span>
                   </span>
                 </div>
-                <div className="flex items-start gap-2">
-                  <div className="bullet" />
+                <div className="task-rule-item">
+                  <span className="bullet" />
                   <span>Click Launch to activate</span>
                 </div>
               </>
             ) : (
-              <span className="text-[13px]">{task.description}</span>
+              <div className="task-rule-item">
+                <span className="bullet" />
+                <span>{task.description}</span>
+              </div>
             )}
           </div>
         )}

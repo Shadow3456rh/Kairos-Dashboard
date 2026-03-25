@@ -11,45 +11,23 @@ export default function Navbar() {
     await signOut(auth);
   };
 
+  const initial = (currentUser?.displayName?.[0] || currentUser?.email?.[0] || '?').toUpperCase();
+  const displayName = currentUser?.displayName || currentUser?.email?.split('@')[0];
+
   return (
-    <nav className="sticky top-0 z-[100] flex items-center justify-between px-6 py-4 border-b"
-      style={{
-        background: 'var(--bg-card)',
-        borderColor: 'var(--border)',
-        backdropFilter: 'blur(16px)',
-      }}
-    >
-      {/* Logo Area */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-[10px] flex items-center justify-center" style={{ background: 'var(--accent-soft)', border: '1px solid var(--border-accent)' }}>
-          <span className="text-xl">🖐</span>
-        </div>
-        <h1 className="font-display font-bold text-2xl" style={{ color: 'var(--text-primary)' }}>GestureHub</h1>
+    <nav className="navbar">
+      {/* Logo */}
+      <div className="navbar-logo">
+        <div className="navbar-logo-icon">🖐</div>
+        <span className="navbar-logo-text">GestureHub</span>
       </div>
 
-      {/* User Area */}
-      <div className="flex items-center gap-4">
-        <div className="hidden sm:flex items-center gap-3">
-          <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-            {currentUser?.displayName || currentUser?.email?.split('@')[0]}
-          </span>
-          <div
-            className="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold"
-            style={{ background: 'var(--accent)' }}
-          >
-            {currentUser?.displayName?.[0] || currentUser?.email?.[0]?.toUpperCase()}
-          </div>
-        </div>
-
-        <button
-          onClick={handleLogout}
-          className="p-2 rounded-full transition-colors"
-          style={{ color: 'var(--text-muted)' }}
-          title="Logout"
-          onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
-          onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
-        >
-          <LogOut size={20} />
+      {/* Right side */}
+      <div className="navbar-right">
+        <span className="navbar-email hidden sm:block">{displayName}</span>
+        <div className="navbar-avatar">{initial}</div>
+        <button className="navbar-logout" onClick={handleLogout} title="Logout">
+          <LogOut size={18} />
         </button>
       </div>
     </nav>

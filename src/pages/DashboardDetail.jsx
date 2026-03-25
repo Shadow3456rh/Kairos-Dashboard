@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Rocket } from 'lucide-react';
 import { db } from '../firebaseConfig';
 import { useAuth } from '../context/AuthContext';
 import { collection, query, orderBy, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
-import { useEffect } from 'react';
 import TaskTile from '../components/TaskTile';
 import AddTaskModal from '../components/AddTaskModal';
 import PageLoadingBar from '../components/PageLoadingBar';
@@ -25,8 +24,8 @@ export default function DashboardDetail({ dashboard, onBack }) {
       setTasks(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
     });
     return () => unsubscribe();
-  // Use dashboard.id (stable primitive) instead of the full object to avoid
-  // re-subscribing the listener on every parent re-render.
+    // Use dashboard.id (stable primitive) instead of the full object to avoid
+    // re-subscribing the listener on every parent re-render.
   }, [currentUser, dashboard?.id]);
 
   const handleDeleteTask = async (taskId) => {
@@ -50,70 +49,54 @@ export default function DashboardDetail({ dashboard, onBack }) {
   return (
     <motion.div
       key="detail"
-      initial={{ opacity: 0, x: 40 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 40 }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="w-full max-w-7xl mx-auto px-6 py-6"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.3, ease: 'easeInOut' }}
     >
       <PageLoadingBar />
 
       {/* Top controls row */}
-      <div className="flex items-center justify-between mb-8">
-        <motion.button
-          onClick={onBack}
-          whileHover={{ x: -4 }}
-          className="back-btn"
-        >
-          <ArrowLeft size={16} />
+      <div className="detail-topbar">
+        <motion.button onClick={onBack} className="back-btn">
+          <motion.span whileHover={{ x: -3 }} style={{ display: 'inline-flex' }}>
+            <ArrowLeft size={15} />
+          </motion.span>
           All Dashboards
         </motion.button>
 
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
+        <button
+          className="launch-btn"
           onClick={handleLaunch}
           disabled={launchStatus === 'pending'}
-          className="launch-btn"
         >
           {launchStatus === 'pending' && (
-            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <span className="w-4 h-4 border-2 border-black/20 border-t-black/70 rounded-full animate-spin" style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid rgba(0,0,0,0.2)', borderTopColor: 'rgba(0,0,0,0.7)', animation: 'spin 0.7s linear infinite', display: 'inline-block' }} />
           )}
           {launchStatus === 'success' && <span>Connected ✓</span>}
           {!launchStatus && (
             <>
-              <div className="pulse-dot" />
-              <Rocket size={16} />
+              <span className="launch-dot" />
+              <Rocket size={14} />
               Launch Status
             </>
           )}
-        </motion.button>
+        </button>
       </div>
 
       {/* Dashboard identity header */}
-      <div className="flex items-center gap-5 mb-6">
-        <div
-          className="w-[72px] h-[72px] rounded-[20px] flex items-center justify-center text-[40px] shadow-sm"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-        >
-          {dashboard.icon}
-        </div>
+      <div className="detail-header">
+        <div className="detail-icon-wrap">{dashboard.icon}</div>
         <div>
-          <h2 className="font-display font-[800] text-[28px]" style={{ color: 'var(--text-primary)' }}>
-            {dashboard.name}
-          </h2>
-          <div className="flex items-center gap-3 mt-1">
-            <p className="font-body text-[14px]" style={{ color: 'var(--text-muted)' }}>
-              Manage your gesture tasks
-            </p>
-            <div className="task-count-badge">
-              {tasks.length} tasks
-            </div>
+          <h2 className="detail-title">{dashboard.name}</h2>
+          <div className="detail-subtitle">
+            <span>Gesture tasks</span>
+            <span className="detail-badge">{tasks.length} tasks</span>
           </div>
         </div>
       </div>
 
-      <div className="w-full h-px mb-8" style={{ background: 'var(--border)' }} />
+      <div className="detail-divider" />
 
       {/* Task Grid */}
       <motion.div
@@ -133,7 +116,7 @@ export default function DashboardDetail({ dashboard, onBack }) {
             className="add-task-tile"
           >
             <span className="plus-icon">+</span>
-            <span>Add Task</span>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500 }}>Add Task</span>
           </motion.div>
         </AnimatePresence>
       </motion.div>
